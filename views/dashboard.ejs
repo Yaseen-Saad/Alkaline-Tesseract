@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CO₂ Dashboard</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div id="loader" class="loader"></div>
+  <header>
+    <h1>CO₂ Dashboard</h1>
+  </header>
+  <main>
+    <section class="current-co2">
+      <div class="co2-display">
+        <h2>Current CO₂ Level</h2>
+        <p><%= co2Data.length > 0 ? co2Data[0].co2 + ' ppm' : 'No Data' %></p>
+        <p>Last Updated: <%= lastUpdated ? lastUpdated : 'No Data' %></p>
+      </div>
+    </section>
+    <section class="co2-graph">
+      <h2>CO₂ Levels Over Time</h2>
+      <canvas id="chart"></canvas> <!-- Ensure this is a <canvas> element -->
+    </section>
+    <section class="filter-toggle">
+      <label for="filterOn">Filter Status:</label>
+      <button id="filter-toggle-button" class="filter-button <%= filterOn %2? 'on' : 'off' %>" data-doc-id="<%= docId %>" data-filter-on="<%= filterOn  %2 %>">
+        <%= filterOn  %2 ? 'Turn Off' : 'Turn On' %> Filter
+      </button>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      document.getElementById('loader').style.display = "none";
+
+      const canvasElement = document.getElementById('chart');
+
+      if (canvasElement && canvasElement instanceof HTMLCanvasElement) {
+        const ctx = canvasElement.getContext('2d');
+
+        if (ctx) {
+          const co2Data = JSON.parse('<%- JSON.stringify(co2Data) %>');
+          const labels = co2Data.map(data => data.timestamp);
+          const dataPoints = co2Data.map(data => parseFloat(data.co2));
+
+          const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: labels,
+              datasets: [{
+                label: 'CO₂ Concentration (ppm)',
+                data: dataPoints,
+                borderColor: 'teal',
+                backgroundColor: 'rgba(0, 128, 128, 0.2)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointHoverRadius: 6,
+              }]
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: {
+                  display: true
+                },
+                tooltip: {
+                  enabled: true,
+                  mode: 'index',
+                  intersect: false
+                }
+              },
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: 'Time'
+                  },
+                  grid: {
+                    display: false
+                  },
+                  reverse: true // Reverse the order of the x-axis to correctly display from latest to earliest
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: 'CO₂ Concentration (ppm)'
+                  }
+                }
+              }
+            }
+          });
+        } else {
+          console.error("Failed to get canvas context. Ensure the canvas element exists.");
+        }
+      } else {
+        console.error("The element with id 'chart' is not a valid canvas element.");
+      }
+
+      // Handle filter toggle button click
+      const filterToggleButton = document.getElementById('filter-toggle-button');
+      if (filterToggleButton) {
+        filterToggleButton.addEventListener('click', async function() {
+          const docId = filterToggleButton.getAttribute('data-doc-id');
+          const filterOn = filterToggleButton.getAttribute('data-filter-on') === 'true';
+          const newFilterStatus = !filterOn;
+
+          try {
+            const response = await fetch('/toggle-filter', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                docId: docId,
+                filterOn: newFilterStatus
+              })
+            });
+            const result = await response.json();
+            if (result.success) {
+              filterToggleButton.setAttribute('data-filter-on', newFilterStatus);
+              filterToggleButton.classList.toggle('on');
+              filterToggleButton.classList.toggle('off');
+              const icon = filterToggleButton.querySelector('i');
+              if (icon) {
+                icon.classList.toggle('fas');
+                icon.classList.toggle('fa-toggle-on');
+                icon.classList.toggle('fa-toggle-off');
+              }
+              filterToggleButton.textContent = newFilterStatus ? 'Turn Off Filter' : 'Turn On Filter';
+            }
+          } catch (error) {
+            console.error('Error updating filter status:', error);
+          }
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
