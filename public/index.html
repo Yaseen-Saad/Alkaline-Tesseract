@@ -1,20 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CO₂ Dashboard Login</title>
-    <link rel="stylesheet" href="/styles.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CO₂ Dashboard Login</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
+
 <body>
-    <div class="login-container">
-        <h1>Login to CO₂ Dashboard</h1>
-        <form id="login-form" action="/dashboard" method="GET">
-            <label for="docId">Enter User ID:</label>
-            <input type="text" id="docId" name="docId" required>
-            <button type="submit">Login</button>
-        </form>
+
+  <div class="tracks-grid">
+    <div class="track-card">
+      <img src="./tesseract.png" width="50px" alt="">
+      <h1>Alkaline-Tesseract</h1>
+
+      <form id="login-form" action="/dashboard" method="GET">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="docId">Tesseract Id:</label>
+            <input type="text" id="docId" name="docId" required placeholder="Enter your tesseract id">
+            <div class="error-message"></div>
+          </div>
+        </div>
+        <button type="submit" class="nav-button submit-button">
+          See Dashboard
+        </button>
+      </form>
+
+      <div class="tracks-note">
+        <i class="fas fa-info-circle"></i>
+        <p>All participants will receive comprehensive training in all four computational science tracks, providing a strong foundation in scientific computing across multiple disciplines.</p>
+      </div>
     </div>
+  </div>
 </body>
+
 </html>

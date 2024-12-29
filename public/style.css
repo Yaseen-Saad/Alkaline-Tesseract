@@ -1,0 +1,100 @@
+.current-co2 {
+    background: var(--light-gray);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 800px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.co2-display h2 {
+    font-size: 1.8rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.co2-display p {
+    font-size: 1.2rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.co2-graph {
+    background: var(--light-gray);
+    border-radius: 12px;
+    padding: 2rem;
+    margin: 2rem auto;
+    max-width: 900px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.co2-graph h2 {
+    font-size: 1.8rem;
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+canvas {
+    display: block;
+    max-width: 100%;
+    margin: 0 auto;
+}
+
+.filter-toggle {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.filter-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(45deg, var(--accent-color), var(--text-color-light));
+    color: var(--text-color);
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.filter-button:hover {
+    transform: translateY(-2px);
+    background: linear-gradient(45deg, var(--text-color-light), var(--accent-color));
+    box-shadow: 0 8px 15px rgba(0, 255, 200, 0.3);
+}
+
+.filter-button.on {
+    background: var(--accent-color);
+}
+
+.filter-button.off {
+    background: rgba(255, 0, 0, 0.8);
+}
+
+.filter-button i {
+    font-size: 1.2rem;
+}
+
+/* Chart Style Enhancements */
+.chartjs-render-monitor {
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.chart-tooltip {
+    background: var(--light-gray);
+    color: var(--text-color);
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
