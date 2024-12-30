@@ -39,7 +39,7 @@ app.get('/dashboard', async (req, res) => {
     let co2Data = [];
     let lastUpdated = null;
     if (co2ReadingsSnapshot.size > 0) {
-      const oneHourAgo = Date.now() - 60 * 60 * 1000; // One hour ago in milliseconds
+      const oneHourAgo = Date.now() - 60 * 60 * 1000;
 
       let firstValidTimestamp = null;
       co2ReadingsSnapshot.forEach((doc) => {
@@ -66,6 +66,8 @@ app.get('/dashboard', async (req, res) => {
           }
         }
       });
+      console.log(co2Data);
+
       if (!co2Data[0]) {
         co2ReadingsSnapshot.forEach((doc) => {
           const data = doc.data();
