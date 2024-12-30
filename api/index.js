@@ -4,7 +4,9 @@ const path = require('path');
 const cors = require('cors');
 const { db } = require('./firebase');
 const admin = require('firebase-admin');
-const { log } = require('console');
+const { log, timeStamp } = require('console');
+const { render } = require('ejs');
+const { Timestamp } = require('firebase-admin/firestore');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,7 +63,7 @@ app.get('/dashboard', async (req, res) => {
             });
 
             if (!lastUpdated) {
-              lastUpdated = getTimeAgo(currentTimestamp);
+              lastUpdated = getTimeAgo(currentTimestamp + 2 * 60 * 60 * 1000);
             }
           }
         }
@@ -101,6 +103,48 @@ app.get('/dashboard', async (req, res) => {
   } catch (error) {
     console.error('Error fetching data:', error);
     res.status(500).send('Internal Server Error');
+  }
+});
+app.get('/add', async (req, res) => {
+  const docId = req.query.docId;
+  if (!docId) {
+    return res.redirect('/');
+  }
+  try {
+    console.log(req.body);
+    res.render('index', { docId });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
+
+
+app.post('/auth', async (req, res) => {
+
+  try {
+    const co2ReadingsSnapshot = await db
+      .collection('readings')
+      .doc("user3")
+      .collection('co2');
+
+    function getFirestoreFormattedTimestamp() {
+      return admin.firestore.Timestamp.fromDate(new Date());  // Creates Firestore Timestamp
+    }
+
+    // Example usage
+    console.log(getFirestoreFormattedTimestamp());
+
+    co2ReadingsSnapshot.add({
+      timestamp: getFirestoreFormattedTimestamp(), // Firestore-compatible timestamp format
+      co2: +req.body[0].co
+    });
+
+    res.status(200).json({ message: "Hacker Registered Succefully" });
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    res.status(500).json({ message: 'Failed to registered', error: error.message });
   }
 });
 

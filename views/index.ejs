@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CO₂ Dashboard Login</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <form>
+
+    <input type="text" id="docId" name="docId" required placeholder="Enter your tesseract id">
+    <button type="submit" class="nav-button submit-button">
+      See Dashboard
+    </button>
+  </form>
+  <script>
+    document.querySelector("form").addEventListener("submit", (event) => {
+      event.preventDefault()
+      console.log(document.querySelector("input").value);
+
+      fetch("/auth?docId=user3", {
+        method: 'POST',
+        headers: {
+          "docId": "user3",
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify([{
+          co: document.querySelector("input").value
+        }])
+      }).then(res => console.log(res))
+    })
+  </script>
+</body>
+
+</html>
