@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
-const { db, bucket } = require('./firebase');
+const { db } = require('./firebase');
 const admin = require('firebase-admin');
 const { log } = require('console');
 
@@ -42,13 +42,10 @@ app.get('/dashboard', async (req, res) => {
       const oneHourAgo = Date.now() - 60 * 60 * 1000; // One hour ago in milliseconds
 
       let firstValidTimestamp = null;
-
       co2ReadingsSnapshot.forEach((doc) => {
         const data = doc.data();
-
         if (data && data.co2 && data.timestamp) {
           const currentTimestamp = data.timestamp._seconds * 1000 - 2 * 60 * 60 * 1000
-          log(currentTimestamp, oneHourAgo)
           if (currentTimestamp >= oneHourAgo) {
             if (!firstValidTimestamp) {
               firstValidTimestamp = currentTimestamp;
@@ -69,6 +66,30 @@ app.get('/dashboard', async (req, res) => {
           }
         }
       });
+      if (!co2Data[0]) {
+        co2ReadingsSnapshot.forEach((doc) => {
+          const data = doc.data();
+          if (data && data.co2 && data.timestamp) {
+            const currentTimestamp = data.timestamp._seconds * 1000 - 2 * 60 * 60 * 1000
+            if (!firstValidTimestamp) {
+              firstValidTimestamp = currentTimestamp;
+            }
+
+            const secondsSinceFirst = Math.round(
+              (currentTimestamp - firstValidTimestamp) / 1000
+            );
+
+            co2Data.push({
+              y: data.co2,
+              x: secondsSinceFirst,
+            });
+
+            if (!lastUpdated) {
+              lastUpdated = getTimeAgo(currentTimestamp);
+            }
+          }
+        });
+      }
     }
     co2Data = co2Data.map(co2 => { return { x: co2.x + Math.abs(co2Data[co2Data.length - 1].x), y: co2.y } })
     const filterOn = filterStatusDoc.exists

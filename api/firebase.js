@@ -20,10 +20,8 @@ if (!serviceAccount.project_id) {
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
-    storageBucket: 'alkaline-tesseract.firebasestorage.app', // Replace with your Firebase Storage bucket
-    projectId: 'alkaline-tesseract',
+    projectId: 'capstone3-54b6e',
 });
 
 const db = admin.firestore();
-const bucket = admin.storage().bucket();
-module.exports = { db, bucket }
+module.exports = { db }

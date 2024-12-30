@@ -19,7 +19,11 @@
     color: var(--text-color);
     margin-bottom: 0.5rem;
 }
-
+.co2-display h3 {
+    color: #fff;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+}
 .co2-graph {
     background: var(--light-gray);
     border-radius: 12px;

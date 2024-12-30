@@ -13,7 +13,7 @@
 <body>
   <div id="loader" class="loader"></div>
   <main>
-    <section class="current-co2">
+    <section class="current-co2 track-card">
       <div class="co2-display">
         <h2>Alkaline-Tesseract</h2>
         <h3>Current CO₂ Level</h3>
@@ -21,23 +21,20 @@
         <p>Last Updated: <%= lastUpdated ? lastUpdated : 'No Data' %></p>
       </div>
     </section>
-    <section class="co2-graph">
-      <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
-      <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
-
-      <div id="chartContainer" style="width:100%; height:280px"></div>
-      <button id="addDataPoint">Add Data Point</button>
-      <button id="updateDataPoint">Update Data Point</button>
+    <section class="track-card co2-graph">
+      <div id="chartContainer" style="width:100%; height:280px">
+        <canvas id="chart"></canvas>
+      </div>
     </section>
-    <section class="co2-graph">
-      <h2>CO₂ Levels Over Time</h2>
-      <canvas id="chart"></canvas> <!-- Ensure this is a <canvas> element -->
-    </section>
-    <section class="filter-toggle">
+    <section class="track-card filter-toggle">
       <label for="filterOn">Filter Status:</label>
       <button id="filter-toggle-button" class="filter-button <%= filterOn %2? 'on' : 'off' %>" data-doc-id="<%= docId %>" data-filter-on="<%= filterOn  %2 %>"><%=filterOn%2?'On':'Off'%></button>
     </section>
   </main>
+  <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
+  <script type="text/javascript" src="https://cdn.canvasjs.com/canvasjs.min.js"></script>
+  <script src="https://cdn.canvasjs.com/canvasjs.stock.min.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", function() {
@@ -50,96 +47,78 @@
 
         if (ctx) {
           let co2Data = JSON.parse('<%- JSON.stringify(co2Data) %>');
-
           // Reverse the data to display the oldest reading first
           co2Data = co2Data.reverse();
-
           // Create the chart
-          var chart = new CanvasJS.Chart("chartContainer", {
+          var stockChart = new CanvasJS.StockChart("chartContainer", {
             title: {
-              text: "CO2 Levels Over Time"
+              text: "CO2 Levels Over Time",
+              fontColor: "#7a3170" // Title color
             },
-            axisX: {
-              title: "Time (seconds ago)"
-            },
-            axisY: {
-              title: "CO2 Level (ppm)"
-            },
-            data: [{
-              type: "line",
-              dataPoints: co2Data // Reversed data
-            }]
+            animationEnabled: true,
+            exportEnabled: true,
+            backgroundColor: "#f0f0f0", // Background color
+            charts: [{
+              axisX: {
+                title: "Time (seconds ago)",
+                titleFontColor: "#000", // Axis title color
+                labelFontColor: "#7a3170", // Label color
+                crosshair: {
+                  enabled: true,
+                  snapToDataPoint: true,
+                  color: "#7a3170" // Crosshair color
+                },
+                lineColor: "#000", // Axis line color
+                tickColor: "#000" // Tick marks color
+              },
+              axisY: {
+                title: "CO2 Level (ppm)",
+                titleFontColor: "#000", // Axis title color
+                labelFontColor: "#7a3170", // Label color
+                crosshair: {
+                  enabled: true,
+                  color: "#7a3170" // Crosshair color
+                },
+                gridColor: "#e0e0e0", // Gridline color
+                lineColor: "#000", // Axis line color
+                tickColor: "#000" // Tick marks color
+              },
+              data: [{
+                type: "spline", // Changed to spline for smooth curves
+                dataPoints: co2Data,
+                color: "#7a3170", // Line color
+                markerColor: "#000", // Marker color
+                lineThickness: 2 // Line thickness
+              }]
+            }],
+            rangeSelector: {
+              inputFields: {
+                startValue: co2Data[0].x,
+                endValue: co2Data[co2Data.length - 1].x,
+                valueFormatString: "###0"
+              },
+              buttons: [{
+                label: "10s",
+                range: 10,
+                rangeType: "number"
+              }, {
+                label: "30s",
+                range: 30,
+                rangeType: "number"
+              }, {
+                label: "1m",
+                range: 60,
+                rangeType: "number"
+              }, {
+                label: "All",
+                rangeType: "all"
+              }]
+            }
           });
-          chart.render();
+          stockChart.render();
 
-          // Add data point button logic
-          $("#addDataPoint").click(function() {
-            var length = chart.options.data[0].dataPoints.length;
-            chart.options.title.text = "New DataPoint Added at the end";
-            chart.options.data[0].dataPoints.push({
-              y: 25 - Math.random() * 10
-            });
-            chart.render();
-          });
-
-          // Update data point button logic
-          $("#updateDataPoint").click(function() {
-            var length = chart.options.data[0].dataPoints.length;
-            chart.options.title.text = "Last DataPoint Updated";
-            chart.options.data[0].dataPoints[length - 1].y = 15 - Math.random() * 10;
-            chart.render();
-          });
         }
 
-        ////////////////////////////////
-        // const chart = new Chart(ctx, {
-        //   type: 'line',
-        //   data: {
-        //     labels: labels,
-        //     datasets: [{
-        //       label: 'CO₂ Concentration (ppm)',
-        //       data: dataPoints,
-        //       borderColor: 'teal',
-        //       backgroundColor: 'rgba(0, 128, 128, 0.2)',
-        //       fill: true,
-        //       tension: 0.4,
-        //       pointRadius: 3,
-        //       pointHoverRadius: 6,
-        //     }]
-        //   },
-        //   options: {
-        //     responsive: true,
-        //     plugins: {
-        //       legend: {
-        //         display: true
-        //       },
-        //       tooltip: {
-        //         enabled: true,
-        //         mode: 'index',
-        //         intersect: false
-        //       }
-        //     },
-        //     scales: {
-        //       x: {
-        //         title: {
-        //           display: true,
-        //           text: 'Time'
-        //         },
-        //         grid: {
-        //           display: false
-        //         },
-        //         reverse: true // Reverse the order of the x-axis to correctly display from latest to earliest
-        //       },
-        //       y: {
-        //         title: {
-        //           display: true,
-        //           text: 'CO₂ Concentration (ppm)'
-        //         },
-        //         min: 0 // Set the minimum value for the y-axis to 0
-        //       }
-        //     }
-        //   }
-        // });
       } else {
         console.error("Failed to get canvas context. Ensure the canvas element exists.");
       }
@@ -174,7 +153,7 @@
                 icon.classList.toggle('fa-toggle-on');
                 icon.classList.toggle('fa-toggle-off');
               }
-              filterToggleButton.textContent = newFilterStatus ? 'Turn Off Filter' : 'Turn On Filter';
+              filterToggleButton.textContent = newFilterStatus % 2 ? 'Off' : 'On';
             }
           } catch (error) {
             console.error('Error updating filter status:', error);
